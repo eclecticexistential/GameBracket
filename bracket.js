@@ -101,12 +101,32 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes){
 				}
 				if(i>1){
 					if(i < baseLine/2){
-						$(areaId).append($(document.createElement("td")).text(newWinners[winCount]))
+						let playerWinner = newWinners[winCount]
+						let pWinId = '#' + playerWinner + 'score'
+						let pWinBtn = playerWinner+'btn'
+						$(areaId).append($(document.createElement("td")).text(playerWinner).attr('id',playerWinner + 'score'))
+						$(pWinId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+playerWinner));
+						$(pWinId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pWinBtn).text('Won?'));
 						winCount++
+						
+						$('#'+pWinBtn).click(function(e){
+							console.log(e)
+						})
 					}
 					if(i > baseLine/2){
-						$(areaId).append($(document.createElement("td")).text(newLosers[loseCount]))
-						loseCount++
+						let playerLoser = newLosers[loseCount]
+						if (playerLoser != undefined){
+							let pLosId = '#' + playerLoser + 'score'
+							let pLosBtn = playerLoser+'btn'
+							$(areaId).append($(document.createElement("td")).text(playerLoser).attr('id',playerLoser+'score'))
+							$(pLosId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+playerLoser));
+							$(pLosId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pLosBtn).text('Won?'));
+							loseCount++
+							
+							$('#'+pLosBtn).click(function(e){
+								console.log(e)
+							})
+						}
 					}
 				}
 			}
