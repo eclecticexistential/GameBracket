@@ -71,6 +71,38 @@ function shuffle(array){
 	return array;
 }
 
+function addRound(){
+	let currRound = 'Round ' + ($('#title').length+1)
+	$('#title').append($(document.createElement("th")).text(currRound))
+}
+
+function checkScore(e){
+	let playerId = e.target.id
+	let player = playerId.slice(0,-3)
+	let score = e.target.previousSibling.value
+	let nodeList = e.target.offsetParent.offsetParent.childNodes
+	let oppTd = ''
+	for(i=2; i<nodeList.length;i++){
+		let round = nodeList[i].childNodes.length
+		let playerTd = nodeList[i].childNodes[round-1].id
+		if(playerTd != ''){
+			if(playerTd == player+'score'){
+				console.log($('#'+playerTd))
+				if(nodeList[i-1].childNodes[round-1].id){
+					console.log(nodeList[i-1].childNodes[round-1].id)
+				}
+				try {
+					console.log(nodeList[i+1].childNodes[round-1].id)
+				}
+				catch(TypeError) {
+					continue
+				}
+			}
+		}
+	}
+	console.log(oppTd)
+}
+
 function updateBrackets(byePlayers, winners, losers, filtered, byes){
 	let newArray = shuffle(filtered.concat(byePlayers))
 	let newByePlayer = pickPlayerByes(byes, newArray)
@@ -110,7 +142,7 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes){
 						winCount++
 						
 						$('#'+pWinBtn).click(function(e){
-							console.log(e)
+							checkScore(e)
 						})
 					}
 					if(i > baseLine/2){
@@ -124,7 +156,7 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes){
 							loseCount++
 							
 							$('#'+pLosBtn).click(function(e){
-								console.log(e)
+								checkScore(e, newByePlayer)
 							})
 						}
 					}
@@ -132,11 +164,6 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes){
 			}
 		}
 	}
-}
-
-function addRound(){
-	let currRound = 'Round ' + ($('#title').length+1)
-	$('#title').append($(document.createElement("th")).text(currRound))
 }
 
 function startGame(byes=0){
@@ -173,15 +200,7 @@ function startGame(byes=0){
 			let nodeList = e.target.offsetParent.offsetParent.childNodes
 			let currPlayerIndex = filtered.indexOf(player)
 			let oppPlayerIndex = ''
-			if(currPlayerIndex === 0){
-				oppPlayerIndex = 1
-			}
-			if(currPlayerIndex % 2 === 0){
-				oppPlayerIndex = currPlayerIndex + 1
-			}
-			if(currPlayerIndex % 2 !== 0){
-				oppPlayerIndex = currPlayerIndex - 1
-			}
+			currPlayerIndex === 0 ? oppPlayerIndex = 1 : currPlayerIndex % 2 === 0 ? oppPlayerIndex = currPlayerIndex + 1 : oppPlayerIndex = currPlayerIndex - 1
 			let oppPlayerName = filtered[oppPlayerIndex]
 			let currPlayerWins = e.target.previousSibling.value
 			let oppPlayerWins = nodeList[0].parentElement.children[oppPlayerName].childNodes[0].childNodes[1].value
