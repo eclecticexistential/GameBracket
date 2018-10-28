@@ -76,23 +76,44 @@ function addRound(){
 	$('#title').append($(document.createElement("th")).text(currRound))
 }
 
-function checkScore(e){
+function checkByePlayer(byePlayer, player){
+	return byePlayer === player ? true : false
+}
+
+function checkWinner(p1, p2, score1, score2){
+	return score1 > score2 ? p1 : p2
+}
+
+function checkScore(e, byePlayers, newByePlayer){
 	let playerId = e.target.id
 	let player = playerId.slice(0,-3)
 	let score = e.target.previousSibling.value
 	let nodeList = e.target.offsetParent.offsetParent.childNodes
 	let oppTd = ''
+	const winners = []
+	const losers = []
 	for(i=2; i<nodeList.length;i++){
 		let round = nodeList[i].childNodes.length
 		let playerTd = nodeList[i].childNodes[round-1].id
 		if(playerTd != ''){
 			if(playerTd == player+'score'){
-				console.log($('#'+playerTd))
 				if(nodeList[i-1].childNodes[round-1].id){
-					console.log(nodeList[i-1].childNodes[round-1].id)
+					let oppPlayerPos = $('#'+nodeList[i-1].childNodes[round-1].id)
+					let oppPlayerName = oppPlayerPos[0].firstChild.wholeText
+					let oppPlayerScore = oppPlayerPos[0].firstElementChild.value
+					let roundWinner = checkWinner(player, oppPlayerName, score, oppPlayerScore)
+					let roundLoser = roundWinner == player ? oppPlayerName : player
+					if(roundLoser === byePlayers){losers.push(roundLoser)}
+					console.log(roundWinner, roundLoser)
 				}
 				try {
-					console.log(nodeList[i+1].childNodes[round-1].id)
+					let oppPlayerPos = $('#'+nodeList[i+1].childNodes[round-1].id)
+					let oppPlayerName = oppPlayerPos[0].firstChild.wholeText
+					let oppPlayerScore = oppPlayerPos[0].firstElementChild.value
+					let roundWinner = checkWinner(player, oppPlayerName, score, oppPlayerScore)
+					let roundLoser = roundWinner == player ? oppPlayerName : player
+					if(roundLoser === byePlayers){losers.push(roundLoser)}
+					console.log(roundWinner, roundLoser)
 				}
 				catch(TypeError) {
 					continue
@@ -100,7 +121,6 @@ function checkScore(e){
 			}
 		}
 	}
-	console.log(oppTd)
 }
 
 function updateBrackets(byePlayers, winners, losers, filtered, byes){
@@ -142,7 +162,7 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes){
 						winCount++
 						
 						$('#'+pWinBtn).click(function(e){
-							checkScore(e)
+							checkScore(e, byePlayers, newByePlayer)
 						})
 					}
 					if(i > baseLine/2){
@@ -156,7 +176,7 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes){
 							loseCount++
 							
 							$('#'+pLosBtn).click(function(e){
-								checkScore(e, newByePlayer)
+								checkScore(e, byePlayers, newByePlayer)
 							})
 						}
 					}
