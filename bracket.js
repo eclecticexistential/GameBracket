@@ -72,8 +72,17 @@ function shuffle(array){
 }
 
 function addRound(){
-	let currRound = 'Round ' + ($('#title').length+1)
-	$('#title').append($(document.createElement("th")).text(currRound))
+	let numRound = $('#roundDisplay')[0].childElementCount
+	if($('#title')[0].textContent == 'Round 1'){
+		let tabName = 'Round'+(numRound+1)
+		let currRound = 'Round ' + (numRound+1)
+		$('#roundDisplay').append($(document.createElement('table')).attr('class', 'col-4').attr('id', tabName))
+		$('#'+tabName).append($(document.createElement('tr')).attr('id', tabName+'tr'))
+		$('#'+tabName+'tr').append($(document.createElement('th')).text(currRound))
+	}
+	if($('#title')[0].textContent !== 'Round 1'){
+		$('#title').append($(document.createElement("th")).text('Round'+numRound))
+	}
 }
 
 function checkWinner(p1, p2, score1, score2){
@@ -85,6 +94,7 @@ function checkScore(e, byePlayers){
 	let player = playerId.slice(0,-3)
 	let score = e.target.previousSibling.value
 	let nodeList = e.target.offsetParent.offsetParent.childNodes
+	// START HERE
 	let oppTd = ''
 	for(i=2; i<nodeList.length;i++){
 		let round = nodeList[i].childNodes.length
@@ -140,46 +150,44 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes){
 		let baseLine = totalArrayLength % 2 === 0 ? totalArrayLength : (totalArrayLength - 1)
 		let winCount = 0
 		let loseCount = 0
-		for(i=0;i<totalArrayLength;i++){
-			let areaId = '#' + $('#playerDisplay')[0].childNodes[i].id
-			if(i!==0){
-				if(i==1){
-					if($(areaId).length == 1){
-						$(areaId).append($(document.createElement("td")))
-					}
-					$(areaId).append($(document.createElement("td")).text('Winners'))
-					}
+		if($('#roundDisplay')[0].childElementCount > 1){
+			let roundNum = $('#roundDisplay')[0].childElementCount
+			let areaId = 'Round' + roundNum
+			$('#'+areaId).append($(document.createElement("tr")).attr('id', areaId+'Winners'))
+			$('#'+areaId+'Winners').append($(document.createElement("tr")).text('Winners'))
+			for(i=2;i<totalArrayLength;i++){
 				if(i == baseLine/2){
-					$(areaId).append($(document.createElement("td")).text('Losers'))
-				}
-				if(i>1){
-					if(i < baseLine/2){
-						let playerWinner = newWinners[winCount]
-						let pWinId = '#' + playerWinner + 'score'
-						let pWinBtn = playerWinner+'btn'
-						$(areaId).append($(document.createElement("td")).text(playerWinner).attr('id',playerWinner + 'score'))
-						$(pWinId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+playerWinner));
-						$(pWinId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pWinBtn).text('Won?'));
-						winCount++
-						
-						$('#'+pWinBtn).click(function(e){
-							checkScore(e, byePlayers)
-						})
+						$('#'+areaId).append($(document.createElement("tr")).attr('id', areaId+'Losers'))
+						$('#'+areaId+'Losers').append($(document.createElement("td")).text('Losers'))
 					}
-					if(i > baseLine/2){
-						let playerLoser = newLosers[loseCount]
-						if (playerLoser != undefined){
-							let pLosId = '#' + playerLoser + 'score'
-							let pLosBtn = playerLoser+'btn'
-							$(areaId).append($(document.createElement("td")).text(playerLoser).attr('id',playerLoser+'score'))
-							$(pLosId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+playerLoser));
-							$(pLosId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pLosBtn).text('Won?'));
-							loseCount++
-							
-							$('#'+pLosBtn).click(function(e){
+				if(i<baseLine/2){
+					let playerWinner = newWinners[winCount]
+					let pWinId = playerWinner + areaId
+					let pWinBtn = playerWinner+'btn'
+					$('#'+areaId).append($(document.createElement("tr")).attr('id', pWinId))
+					$('#'+ pWinId).append($(document.createElement("td")).text(playerWinner))
+					$('#'+ pWinId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+playerWinner));
+					$('#'+ pWinId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pWinBtn).text('Won?'));
+					winCount++
+					
+					$('#'+pWinBtn).click(function(e){
 								checkScore(e, byePlayers)
 							})
-						}
+				}
+				if(i > baseLine/2){
+					let playerLoser = newLosers[loseCount]
+					if (playerLoser != undefined){
+						let pLosId = playerLoser + areaId
+						let pLosBtn = playerLoser+'btn'
+						$('#'+areaId).append($(document.createElement("tr")).attr('id',pLosId))
+						$('#'+ pLosId).append($(document.createElement("td")).text(playerLoser))
+						$('#'+pLosId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+playerLoser));
+						$('#'+pLosId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pLosBtn).text('Won?'));
+						loseCount++
+						
+						$('#'+pLosBtn).click(function(e){
+							checkScore(e, byePlayers)
+						})
 					}
 				}
 			}
