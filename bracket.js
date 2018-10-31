@@ -83,14 +83,16 @@ function checkWinner(p1, p2, score1, score2){
 	return score1 > score2 ? p1 : p2
 }
 
-function checkScore(e, byePlayers, round){
+function checkScore(e, byePlayers, round, newByePlayer){
 	let roundNum = round.slice(5,6)
 	let playerId = e.target.id
-	let player = 'scoreOf'+(playerId.slice(0,-3))
+	let playerName = playerId.slice(0,-3)
+	let player = 'scoreOf'+(playerName)
 	let score = e.target.previousSibling.value
 	let nodeList = e.target.offsetParent.offsetParent.childNodes[1].childNodes[1].childNodes[roundNum-1].childNodes
-	// START HERE
 	let losersStart = nodeList.length/2
+	const winners = []
+	const losers = []
 	for(i=2; i<nodeList.length;i++){
 		let oppPlayer = ''
 		try{
@@ -111,16 +113,37 @@ function checkScore(e, byePlayers, round){
 			let oppPlayerName = oppPlayer.slice(7,oppPlayer.length)
 			let oppPlayerPos = $('#'+oppPlayer)
 			let oppPlayerScore = oppPlayerPos[0].value
-			$('#'+(playerId.slice(0,-3))+round).append(' - ' + score)
-			$(oppPlayerPos).append(' - ' + oppPlayerScore)
+			$('#'+(playerName)+round+'td').append(' - ' + score)
+			$('#'+ oppPlayerName+round+'td').append(' - ' + oppPlayerScore)
 			$('#' + player).remove()
-			$('#'+ (playerId.slice(0,-3) + 'btn')).remove()
+			$('#'+ playerName + 'btn').remove()
 			$(oppPlayerPos).remove()
 			$('#'+oppPlayerName + 'btn').remove()
-			checkWinner(player, oppPlayerName, score, oppPlayerScore)
-			break
+			let newWinner = checkWinner(playerName, oppPlayerName, score, oppPlayerScore)
+			if(playerName == newWinner){
+				winners.push(playerName)
+				let hasBye = newByePlayer.filter(currPlayer => currPlayer == oppPlayerName)
+				if(hasBye){
+					losers.push(oppPlayerName)
+				}
+			}
+			if(oppPlayerName == newWinner){
+				winners.push(oppPlayerName)
+				let hasBye = newByePlayer.filter(currPlayer => currPlayer == playerName)
+				if(hasBye){
+					losers.push(playerName)
+				}
+			}
 		}
 	}
+	console.log(winners.length, losersStart)
+	if(winners.length == losersStart){
+			let updatedPlayerList = winners.concat(losers)
+			let numRound = ($('#roundDisplay')[0].childElementCount) + 1
+			let byes = newByePlayer.length
+			addRound(numRound)
+			return updateBrackets(newByePlayer, winners, losers, updatedPlayerList, byes, numRound)
+		}
 }
 
 function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
@@ -149,31 +172,33 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
 				}
 			if(i<baseLine/2){
 				let playerWinner = newWinners[winCount]
+				let playId = playerWinner+tableId+'td'
 				let pWinId = playerWinner + tableId
 				let pWinBtn = playerWinner+'btn'
 				$('#'+tableId).append($(document.createElement("tr")).attr('id', pWinId))
-				$('#'+ pWinId).append($(document.createElement("td")).text(playerWinner))
+				$('#'+ pWinId).append($(document.createElement("td")).attr('id',playId).text(playerWinner))
 				$('#'+ pWinId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+playerWinner));
 				$('#'+ pWinId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pWinBtn).text('Won?'));
 				winCount++
 				
 				$('#'+pWinBtn).click(function(e){
-							checkScore(e, byePlayers, tableId)
+							return checkScore(e, byePlayers, tableId, newByePlayer)
 						})
 			}
 			if(i > baseLine/2){
 				let playerLoser = newLosers[loseCount]
+				let playId = playerLoser+tableId+'td'
 				if (playerLoser != undefined){
 					let pLosId = playerLoser + tableId
 					let pLosBtn = playerLoser+'btn'
 					$('#'+tableId).append($(document.createElement("tr")).attr('id',pLosId))
-					$('#'+ pLosId).append($(document.createElement("td")).text(playerLoser))
+					$('#'+ pLosId).append($(document.createElement("td")).attr('id',playId).text(playerLoser))
 					$('#'+pLosId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+playerLoser));
 					$('#'+pLosId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pLosBtn).text('Won?'));
 					loseCount++
 					
 					$('#'+pLosBtn).click(function(e){
-						checkScore(e, byePlayers, tableId)
+						return checkScore(e, byePlayers, tableId, newByePlayer)
 					})
 				}
 			}
