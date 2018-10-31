@@ -71,70 +71,60 @@ function shuffle(array){
 	return array;
 }
 
-function addRound(){
-	let numRound = $('#roundDisplay')[0].childElementCount
-	if($('#title')[0].textContent == 'Round 1'){
-		let tabName = 'Round'+(numRound+1)
-		let currRound = 'Round ' + (numRound+1)
-		$('#roundDisplay').append($(document.createElement('table')).attr('class', 'col-4').attr('id', tabName))
-		$('#'+tabName).append($(document.createElement('tr')).attr('id', tabName+'tr'))
-		$('#'+tabName+'tr').append($(document.createElement('th')).text(currRound))
-	}
-	if($('#title')[0].textContent !== 'Round 1'){
-		$('#title').append($(document.createElement("th")).text('Round'+numRound))
-	}
+function addRound(numRound){
+	let tabName = 'Round'+(numRound)
+	let currRound = 'Round ' + (numRound)
+	$('#roundDisplay').append($(document.createElement('table')).attr('class', 'col-4').attr('id', tabName))
+	$('#'+tabName).append($(document.createElement('tr')).attr('id', tabName+'tr'))
+	$('#'+tabName+'tr').append($(document.createElement('th')).text(currRound))
 }
 
 function checkWinner(p1, p2, score1, score2){
 	return score1 > score2 ? p1 : p2
 }
 
-function checkScore(e, byePlayers){
+function checkScore(e, byePlayers, round){
+	let roundNum = round.slice(5,6)
 	let playerId = e.target.id
-	let player = playerId.slice(0,-3)
+	let player = 'scoreOf'+(playerId.slice(0,-3))
 	let score = e.target.previousSibling.value
-	let nodeList = e.target.offsetParent.offsetParent.childNodes
+	let nodeList = e.target.offsetParent.offsetParent.childNodes[1].childNodes[1].childNodes[roundNum-1].childNodes
 	// START HERE
-	let oppTd = ''
+	let losersStart = nodeList.length/2
 	for(i=2; i<nodeList.length;i++){
-		let round = nodeList[i].childNodes.length
-		let playerTd = nodeList[i].childNodes[round-1].id
-		if(playerTd != ''){
-			if(playerTd == player+'score'){
-				if(nodeList[i-1].childNodes[round-1].id){
-					let oppPlayerPos = $('#'+nodeList[i-1].childNodes[round-1].id)
-					let oppPlayerName = oppPlayerPos[0].firstChild.wholeText
-					let oppPlayerScore = oppPlayerPos[0].firstElementChild.value
-					$('#' + playerTd).append(' - ' + score)
-					$(oppPlayerPos).append(' - ' + oppPlayerScore)
-					$('#scoreOf'+player).remove()
-					$('#'+ player + 'btn').remove()
-					$('#scoreOf'+ oppPlayerName).remove()
-					$('#'+ oppPlayerName + 'btn').remove()
-					return checkWinner(player, oppPlayerName, score, oppPlayerScore)
+		let oppPlayer = ''
+		try{
+			nodeList[i].childNodes[roundNum-1].id
+			if (nodeList[i].childNodes[roundNum-1].id == player){
+				try{
+					oppPlayer += nodeList[i-1].childNodes[roundNum-1].id
 				}
-				try {
-					let oppPlayerPos = $('#'+nodeList[i+1].childNodes[round-1].id)
-					let oppPlayerName = oppPlayerPos[0].firstChild.wholeText
-					let oppPlayerScore = oppPlayerPos[0].firstElementChild.value
-					$('#' + playerTd).append(' - ' + score)
-					$(oppPlayerPos).append(' - ' + oppPlayerScore)
-					$('#scoreOf'+player).remove()
-					$('#'+ player + 'btn').remove()
-					$('#scoreOf'+ oppPlayerName).remove()
-					$('#'+ oppPlayerName + 'btn').remove()
-					return checkWinner(player, oppPlayerName, score, oppPlayerScore)
-					
-				}
-				catch(TypeError) {
-					continue
+				catch(TypeError){
+					oppPlayer += nodeList[i+1].childNodes[roundNum-1].id
 				}
 			}
+		}
+		catch(TypeError){
+			continue
+		}
+		if(oppPlayer != ''){
+			let oppPlayerName = oppPlayer.slice(7,oppPlayer.length)
+			let oppPlayerPos = $('#'+oppPlayer)
+			let oppPlayerScore = oppPlayerPos[0].value
+			$('#'+(playerId.slice(0,-3))+round).append(' - ' + score)
+			$(oppPlayerPos).append(' - ' + oppPlayerScore)
+			$('#' + player).remove()
+			$('#'+ (playerId.slice(0,-3) + 'btn')).remove()
+			$(oppPlayerPos).remove()
+			$('#'+oppPlayerName + 'btn').remove()
+			checkWinner(player, oppPlayerName, score, oppPlayerScore)
+			break
 		}
 	}
 }
 
-function updateBrackets(byePlayers, winners, losers, filtered, byes){
+function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
+	let tableId = 'Round'+numRound
 	let newArray = shuffle(filtered.concat(byePlayers))
 	let newByePlayer = pickPlayerByes(byes, newArray)
 	let newWinners = winners.filter(player => player != newByePlayer)
@@ -146,49 +136,45 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes){
 		newWinners = newWinners.concat(byePlayers)
 	}
 	if(newWinners.length == newLosers.length){
-		let totalArrayLength = ($('#playerDisplay')[0].childElementCount)
+		let totalArrayLength = newWinners.length + newLosers.length + 2
 		let baseLine = totalArrayLength % 2 === 0 ? totalArrayLength : (totalArrayLength - 1)
 		let winCount = 0
 		let loseCount = 0
-		if($('#roundDisplay')[0].childElementCount > 1){
-			let roundNum = $('#roundDisplay')[0].childElementCount
-			let areaId = 'Round' + roundNum
-			$('#'+areaId).append($(document.createElement("tr")).attr('id', areaId+'Winners'))
-			$('#'+areaId+'Winners').append($(document.createElement("tr")).text('Winners'))
-			for(i=2;i<totalArrayLength;i++){
-				if(i == baseLine/2){
-						$('#'+areaId).append($(document.createElement("tr")).attr('id', areaId+'Losers'))
-						$('#'+areaId+'Losers').append($(document.createElement("td")).text('Losers'))
-					}
-				if(i<baseLine/2){
-					let playerWinner = newWinners[winCount]
-					let pWinId = playerWinner + areaId
-					let pWinBtn = playerWinner+'btn'
-					$('#'+areaId).append($(document.createElement("tr")).attr('id', pWinId))
-					$('#'+ pWinId).append($(document.createElement("td")).text(playerWinner))
-					$('#'+ pWinId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+playerWinner));
-					$('#'+ pWinId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pWinBtn).text('Won?'));
-					winCount++
-					
-					$('#'+pWinBtn).click(function(e){
-								checkScore(e, byePlayers)
-							})
+		$('#'+tableId).append($(document.createElement("tr")).attr('id', tableId+'Winners'))
+		$('#'+tableId+'Winners').append($(document.createElement("td")).text('Winners'))
+		for(i=1;i<totalArrayLength;i++){
+			if(i == baseLine/2){
+					$('#'+tableId).append($(document.createElement("tr")).attr('id', tableId+'Losers'))
+					$('#'+tableId+'Losers').append($(document.createElement("td")).text('Losers'))
 				}
-				if(i > baseLine/2){
-					let playerLoser = newLosers[loseCount]
-					if (playerLoser != undefined){
-						let pLosId = playerLoser + areaId
-						let pLosBtn = playerLoser+'btn'
-						$('#'+areaId).append($(document.createElement("tr")).attr('id',pLosId))
-						$('#'+ pLosId).append($(document.createElement("td")).text(playerLoser))
-						$('#'+pLosId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+playerLoser));
-						$('#'+pLosId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pLosBtn).text('Won?'));
-						loseCount++
-						
-						$('#'+pLosBtn).click(function(e){
-							checkScore(e, byePlayers)
+			if(i<baseLine/2){
+				let playerWinner = newWinners[winCount]
+				let pWinId = playerWinner + tableId
+				let pWinBtn = playerWinner+'btn'
+				$('#'+tableId).append($(document.createElement("tr")).attr('id', pWinId))
+				$('#'+ pWinId).append($(document.createElement("td")).text(playerWinner))
+				$('#'+ pWinId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+playerWinner));
+				$('#'+ pWinId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pWinBtn).text('Won?'));
+				winCount++
+				
+				$('#'+pWinBtn).click(function(e){
+							checkScore(e, byePlayers, tableId)
 						})
-					}
+			}
+			if(i > baseLine/2){
+				let playerLoser = newLosers[loseCount]
+				if (playerLoser != undefined){
+					let pLosId = playerLoser + tableId
+					let pLosBtn = playerLoser+'btn'
+					$('#'+tableId).append($(document.createElement("tr")).attr('id',pLosId))
+					$('#'+ pLosId).append($(document.createElement("td")).text(playerLoser))
+					$('#'+pLosId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+playerLoser));
+					$('#'+pLosId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pLosBtn).text('Won?'));
+					loseCount++
+					
+					$('#'+pLosBtn).click(function(e){
+						checkScore(e, byePlayers, tableId)
+					})
 				}
 			}
 		}
@@ -207,21 +193,24 @@ function startGame(byes=0){
 	let losers = []
 	let midPoint = filtered.length/2
 	let pair = 0
-	$('#playerDisplay').empty()
-	$('#playerDisplay').append($(document.createElement("tr")).attr('id', 'title'))
-	$('#title').append($(document.createElement("th")).text('Round 1'))
-	$('#playerDisplay').append($(document.createElement("tr")).attr('class', 'space').attr('id','first'))
+	
+	$('#roundDisplay').empty()
+	
+	let numRound = ($('#roundDisplay')[0].childElementCount) + 1
+	addRound(numRound)
+	let tableId = 'Round'+numRound
+	
 	filtered.map((player,index) => {
 		let uniqueId = '#' + player
-		let uniqueIdLabel = player + 'label'
+		let uniqueIdLabel = player + tableId
 		let uniqueIdLab = '#' + uniqueIdLabel
 		let uniIdBtn = '#' + player + 'btn'
-		let uniIdInp = player + 'input'
+		let uniIdInp = 'scoreOf' + player
 		if(index == midPoint){
-			$('#playerDisplay').append($(document.createElement("tr")).attr('class', 'space').attr('id','midPoint'))
+			$('#'+tableId).append($(document.createElement("tr")).attr('class', 'space').attr('id','midPoint'))
 			$('#midPoint').append($(document.createElement("td")))
 		}
-		$('#playerDisplay').append($(document.createElement("tr")).attr('id', player))
+		$('#'+tableId).append($(document.createElement("tr")).attr('id', player))
 		$(uniqueId).append($(document.createElement("td")).text(player).attr('id', uniqueIdLabel));
 		$(uniqueIdLab).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', uniIdInp));
 		$(uniqueIdLab).append($(document.createElement("button")).attr('type', 'submit').attr('id',player+'btn').text('Won?'));
@@ -234,11 +223,11 @@ function startGame(byes=0){
 			let currPlayerWins = e.target.previousSibling.value
 			let oppPlayerWins = nodeList[0].parentElement.children[oppPlayerName].childNodes[0].childNodes[1].value
 			if(currPlayerWins != '' && oppPlayerWins != ''){
-				$('#' + player + 'label').append(' - ' + currPlayerWins)
-				$('#' + oppPlayerName + 'label').append(' - ' + oppPlayerWins)
-				$('#'+ player + 'input').remove()
+				$('#' + uniqueIdLabel).append(' - ' + currPlayerWins)
+				$('#' + oppPlayerName + tableId).append(' - ' + oppPlayerWins)
+				$('#'+ uniIdInp).remove()
 				$('#'+ player + 'btn').remove()
-				$('#'+ oppPlayerName + 'input').remove()
+				$('#scoreOf'+ oppPlayerName).remove()
 				$('#'+ oppPlayerName + 'btn').remove()
 			}
 			if(parseInt(currPlayerWins) > parseInt(oppPlayerWins)){
@@ -252,15 +241,16 @@ function startGame(byes=0){
 				losers.push(player)
 			}
 			if(completedGames === roundGames){
-				addRound()
-				updateBrackets(byePlayers, winners, losers, filtered, byes)
+				let numRound = ($('#roundDisplay')[0].childElementCount) + 1
+				addRound(numRound)
+				return updateBrackets(byePlayers, winners, losers, filtered, byes, numRound)
 			}
 		})
 		if(pair < 2){
 			pair++
 		}
 		if(pair == 2){
-			$('#playerDisplay').append($(document.createElement("tr")).attr('class','space').attr('id', 'pad'+index))
+			$('#'+tableId).append($(document.createElement("tr")).attr('class','space').attr('id', 'pad'+index))
 			$('#pad'+index).append($(document.createElement("td")))
 			pair = 0
 		}
