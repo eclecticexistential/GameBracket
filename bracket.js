@@ -35,6 +35,10 @@ function getByes(numPlayers){
 	let numUp = 0
 	let freePass = 0
 	for(i=0; i<nonByes.length; i++){
+		if(nonByes[i] == numPlayers){
+			return freePass
+			break
+		}
 		if(nonByes[i] < numPlayers){
 			spot = nonByes[i]
 		}
@@ -82,7 +86,7 @@ function addRound(numRound){
 function checkWinner(p1, p2, score1, score2){
 	return score1 > score2 ? p1 : p2
 }
-
+// need to ensure when button clicked doesn't remove if no score ###
 function checkScore(e, byePlayers, round, newByePlayer){
 	let roundNum = round.slice(5,6)
 	let playerId = e.target.id
