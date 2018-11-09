@@ -117,25 +117,27 @@ function checkScore(e, byePlayers, round, newByePlayer){
 			let oppPlayerName = oppPlayer.slice(7,oppPlayer.length)
 			let oppPlayerPos = $('#'+oppPlayer)
 			let oppPlayerScore = oppPlayerPos[0].value
-			$('#'+(playerName)+round+'td').append(' - ' + score)
-			$('#'+ oppPlayerName+round+'td').append(' - ' + oppPlayerScore)
-			$('#' + player).remove()
-			$('#'+ playerName + 'btn').remove()
-			$(oppPlayerPos).remove()
-			$('#'+oppPlayerName + 'btn').remove()
-			let newWinner = checkWinner(playerName, oppPlayerName, score, oppPlayerScore)
-			if(playerName == newWinner){
-				winners.push(playerName)
-				let hasBye = newByePlayer.filter(currPlayer => currPlayer == oppPlayerName)
-				if(hasBye){
-					losers.push(oppPlayerName)
+			if (oppPlayerScore != '' && score != ''){
+				$('#'+(playerName)+round+'td').append(' - ' + score)
+				$('#'+ oppPlayerName+round+'td').append(' - ' + oppPlayerScore)
+				$('#' + player).remove()
+				$('#'+ playerName + 'btn').remove()
+				$(oppPlayerPos).remove()
+				$('#'+oppPlayerName + 'btn').remove()
+				let newWinner = checkWinner(playerName, oppPlayerName, score, oppPlayerScore)
+				if(playerName == newWinner){
+					winners.push(playerName)
+					let hasBye = newByePlayer.filter(currPlayer => currPlayer == oppPlayerName)
+					if(hasBye){
+						losers.push(oppPlayerName)
+					}
 				}
-			}
-			if(oppPlayerName == newWinner){
-				winners.push(oppPlayerName)
-				let hasBye = newByePlayer.filter(currPlayer => currPlayer == playerName)
-				if(hasBye){
-					losers.push(playerName)
+				if(oppPlayerName == newWinner){
+					winners.push(oppPlayerName)
+					let hasBye = newByePlayer.filter(currPlayer => currPlayer == playerName)
+					if(hasBye){
+						losers.push(playerName)
+					}
 				}
 			}
 		}
