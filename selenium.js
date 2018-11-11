@@ -2,8 +2,8 @@ require('chromedriver');
 const selenium = require('selenium-webdriver');
 const driver = new selenium.Builder().forBrowser('chrome').build();
 
-const playerNameList = ['Chris', 'Abbie', 'Charles', 'Leslie', 'Justin', 'Jessica', 'Able', 'James']
-const scores = [0,1,2,3,4,5,6,7]
+const playerNameList = ['Chris', 'Abbie', 'Charles', 'Justin', 'Jessica', 'Able', 'James']
+const scores = [0,1,2,3,4,5,6]
 
 function foo(url){
     driver.get(url)
@@ -72,17 +72,15 @@ setTimeout(function(){finalize(playerNameList, 5,'playerName','saveName')},9650)
 ).then(
 setTimeout(function(){finalize(playerNameList, 6,'playerName','saveName')},10700)
 ).then(
-setTimeout(function(){finalize(playerNameList, 7,'playerName','saveName')},12150)
+setTimeout(function(){step()}, 12000)
 ).then(
-setTimeout(function(){step()}, 14000)
+setTimeout(function(){bar(playerNameList)}, 14000)
 ).then(
-setTimeout(function(){bar(playerNameList)}, 16000)
-).then(
-setTimeout(function(){press(playerNameList)}, 18000)
+setTimeout(function(){press(playerNameList)}, 16000)
 )
 driver.wait(selenium.until.elementLocated(selenium.By.id('Round2'))).then(
-setTimeout(function(){bar(playerNameList,round='Round2')}, 44000),
-setTimeout(function(){press(playerNameList)}, 56000)
+setTimeout(function(){bar(playerNameList,round='Round2')}, 18000),
+setTimeout(function(){press(playerNameList)}, 20000)
 )
 
 

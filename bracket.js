@@ -46,7 +46,7 @@ function getByes(numPlayers){
 			let highNum = nonByes[i]
 			numDown = numPlayers - spot
 			numUp =  highNum - numPlayers
-			freePass = numDown <= numUp ? numDown : numUp
+			freePass = numDown <= numUp ? numUp : numDown
 			break
 		}
 	}
@@ -86,7 +86,7 @@ function addRound(numRound){
 function checkWinner(p1, p2, score1, score2){
 	return score1 > score2 ? p1 : p2
 }
-// need to ensure when button clicked doesn't remove if no score ###
+
 function checkScore(e, byePlayers, round, newByePlayer){
 	let roundNum = round.slice(5,6)
 	let playerId = e.target.id
@@ -94,9 +94,6 @@ function checkScore(e, byePlayers, round, newByePlayer){
 	let player = 'scoreOf'+(playerName)
 	let score = e.target.previousSibling.value
 	let nodeList = e.target.offsetParent.offsetParent.childNodes[1].childNodes[1].childNodes[roundNum-1].childNodes
-	let losersStart = nodeList.length/2
-	const winners = []
-	const losers = []
 	for(i=2; i<nodeList.length;i++){
 		let oppPlayer = ''
 		try{
@@ -124,32 +121,10 @@ function checkScore(e, byePlayers, round, newByePlayer){
 				$('#'+ playerName + 'btn').remove()
 				$(oppPlayerPos).remove()
 				$('#'+oppPlayerName + 'btn').remove()
-				let newWinner = checkWinner(playerName, oppPlayerName, score, oppPlayerScore)
-				if(playerName == newWinner){
-					winners.push(playerName)
-					let hasBye = newByePlayer.filter(currPlayer => currPlayer == oppPlayerName)
-					if(hasBye){
-						losers.push(oppPlayerName)
-					}
-				}
-				if(oppPlayerName == newWinner){
-					winners.push(oppPlayerName)
-					let hasBye = newByePlayer.filter(currPlayer => currPlayer == playerName)
-					if(hasBye){
-						losers.push(playerName)
-					}
-				}
+				return checkWinner(playerName, oppPlayerName, score, oppPlayerScore)
 			}
 		}
 	}
-	console.log(winners.length, losersStart)
-	if(winners.length == losersStart){
-			let updatedPlayerList = winners.concat(losers)
-			let numRound = ($('#roundDisplay')[0].childElementCount) + 1
-			let byes = newByePlayer.length
-			addRound(numRound)
-			return updateBrackets(newByePlayer, winners, losers, updatedPlayerList, byes, numRound)
-		}
 }
 
 function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
@@ -169,6 +144,8 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
 		let baseLine = totalArrayLength % 2 === 0 ? totalArrayLength : (totalArrayLength - 1)
 		let winCount = 0
 		let loseCount = 0
+		const winners = []
+		const losers = []
 		$('#'+tableId).append($(document.createElement("tr")).attr('id', tableId+'Winners'))
 		$('#'+tableId+'Winners').append($(document.createElement("td")).text('Winners'))
 		for(i=1;i<totalArrayLength;i++){
@@ -188,7 +165,29 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
 				winCount++
 				
 				$('#'+pWinBtn).click(function(e){
-							return checkScore(e, byePlayers, tableId, newByePlayer)
+							 let newWinner = checkScore(e, byePlayers, tableId, newByePlayer)
+							 if(playerWinner == newWinner){
+								winners.push(playerName)
+								let hasBye = newByePlayer.filter(currPlayer => currPlayer == oppPlayerName)
+								if(hasBye){
+									losers.push(oppPlayerName)
+								}
+							}
+							if(oppPlayerName == newWinner){//need to get opp here
+								winners.push(oppPlayerName)
+								let hasBye = newByePlayer.filter(currPlayer => currPlayer == playerName)
+								if(hasBye){
+									losers.push(playerName)
+								}
+							}
+							if(winners.length == losersStart){
+									let updatedPlayerList = winners.concat(losers)
+									let numRound = ($('#roundDisplay')[0].childElementCount) + 1
+									let byes = newByePlayer.length
+									addRound(numRound)
+									console.log(numRound)
+									return updateBrackets(newByePlayer, winners, losers, updatedPlayerList, byes, numRound)
+								}
 						})
 			}
 			if(i > baseLine/2){
@@ -204,7 +203,29 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
 					loseCount++
 					
 					$('#'+pLosBtn).click(function(e){
-						return checkScore(e, byePlayers, tableId, newByePlayer)
+						let newWinner = checkScore(e, byePlayers, tableId, newByePlayer)
+						if(playerLoser == newWinner){
+							winners.push(playerName)
+							let hasBye = newByePlayer.filter(currPlayer => currPlayer == oppPlayerName)
+							if(hasBye){
+								losers.push(oppPlayerName)
+							}
+						}
+						if(oppPlayerName == newWinner){ // need to get opp here
+							winners.push(oppPlayerName)
+							let hasBye = newByePlayer.filter(currPlayer => currPlayer == playerName)
+							if(hasBye){
+								losers.push(playerName)
+							}
+						}
+						if(winners.length == losersStart){
+								let updatedPlayerList = winners.concat(losers)
+								let numRound = ($('#roundDisplay')[0].childElementCount) + 1
+								let byes = newByePlayer.length
+								addRound(numRound)
+								console.log(numRound)
+								return updateBrackets(newByePlayer, winners, losers, updatedPlayerList, byes, numRound)
+							}
 					})
 				}
 			}
