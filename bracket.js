@@ -1,6 +1,9 @@
 let players = []
 let nonByes = [4,8,16,32,64,128]
 
+let winners = []
+let losers = []
+
 
 $("#addInfo").submit(function(e){
 	e.preventDefault();
@@ -121,10 +124,19 @@ function checkScore(e, byePlayers, round, newByePlayer){
 				$('#'+ playerName + 'btn').remove()
 				$(oppPlayerPos).remove()
 				$('#'+oppPlayerName + 'btn').remove()
-				return checkWinner(playerName, oppPlayerName, score, oppPlayerScore)
+				return [oppPlayerName, checkWinner(playerName, oppPlayerName, score, oppPlayerScore)]
 			}
 		}
 	}
+}
+
+function inBetween(newByePlayer, winners, losers){	
+	let updatedPlayerList = winners.concat(losers)
+	let numRound = ($('#roundDisplay')[0].childElementCount) + 1
+	let byes = newByePlayer.length
+	addRound(numRound)
+	console.log(numRound)
+	return updateBrackets(newByePlayer, winners, losers, updatedPlayerList, byes, numRound)
 }
 
 function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
@@ -144,8 +156,6 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
 		let baseLine = totalArrayLength % 2 === 0 ? totalArrayLength : (totalArrayLength - 1)
 		let winCount = 0
 		let loseCount = 0
-		const winners = []
-		const losers = []
 		$('#'+tableId).append($(document.createElement("tr")).attr('id', tableId+'Winners'))
 		$('#'+tableId+'Winners').append($(document.createElement("td")).text('Winners'))
 		for(i=1;i<totalArrayLength;i++){
@@ -165,7 +175,7 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
 				winCount++
 				
 				$('#'+pWinBtn).click(function(e){
-							 let newWinner = checkScore(e, byePlayers, tableId, newByePlayer)
+							 let oppPlayerName, newWinner = checkScore(e, byePlayers, tableId, newByePlayer)
 							 if(playerWinner == newWinner){
 								winners.push(playerName)
 								let hasBye = newByePlayer.filter(currPlayer => currPlayer == oppPlayerName)
@@ -173,20 +183,16 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
 									losers.push(oppPlayerName)
 								}
 							}
-							if(oppPlayerName == newWinner){//need to get opp here
+							if(oppPlayerName == newWinner){
 								winners.push(oppPlayerName)
 								let hasBye = newByePlayer.filter(currPlayer => currPlayer == playerName)
 								if(hasBye){
 									losers.push(playerName)
 								}
 							}
-							if(winners.length == losersStart){
-									let updatedPlayerList = winners.concat(losers)
-									let numRound = ($('#roundDisplay')[0].childElementCount) + 1
-									let byes = newByePlayer.length
-									addRound(numRound)
-									console.log(numRound)
-									return updateBrackets(newByePlayer, winners, losers, updatedPlayerList, byes, numRound)
+							
+							if(winners.length == losers.length){ // works but doesn't stop
+									return inBetween(newByePlayer, winners, losers)
 								}
 						})
 			}
@@ -203,7 +209,7 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
 					loseCount++
 					
 					$('#'+pLosBtn).click(function(e){
-						let newWinner = checkScore(e, byePlayers, tableId, newByePlayer)
+						let oppPlayerName, newWinner = checkScore(e, byePlayers, tableId, newByePlayer)
 						if(playerLoser == newWinner){
 							winners.push(playerName)
 							let hasBye = newByePlayer.filter(currPlayer => currPlayer == oppPlayerName)
@@ -211,21 +217,17 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
 								losers.push(oppPlayerName)
 							}
 						}
-						if(oppPlayerName == newWinner){ // need to get opp here
+						if(oppPlayerName == newWinner){
 							winners.push(oppPlayerName)
 							let hasBye = newByePlayer.filter(currPlayer => currPlayer == playerName)
 							if(hasBye){
 								losers.push(playerName)
 							}
 						}
-						if(winners.length == losersStart){
-								let updatedPlayerList = winners.concat(losers)
-								let numRound = ($('#roundDisplay')[0].childElementCount) + 1
-								let byes = newByePlayer.length
-								addRound(numRound)
-								console.log(numRound)
-								return updateBrackets(newByePlayer, winners, losers, updatedPlayerList, byes, numRound)
-							}
+						
+					if(winners.length == losers.length){
+							return inBetween(newByePlayer, winners, losers)
+						}
 					})
 				}
 			}
@@ -311,11 +313,15 @@ function startGame(byes=0){
 
 function loadPlayers(){
 	let numPlayers = players.length
-	let pow2 = nonByes.filter(byes => byes == numPlayers)
-	if(pow2 != ''){
-		startGame()
-	} else{
-		let byes = getByes(numPlayers)
-		startGame(byes)
+	if (numPlayers  > 3){
+		let pow2 = nonByes.filter(byes => byes == numPlayers)
+		if(pow2 != ''){
+			startGame()
+		} else{
+			let byes = getByes(numPlayers)
+			startGame(byes)
+		}
+	}else{
+		alert("Need More People.")
 	}
 }

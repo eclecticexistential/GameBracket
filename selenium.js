@@ -58,29 +58,29 @@ function bar(ListOfPlayers, round=''){
 foo('file:///C:/Users/Earthling/Downloads/Coding/Javascript/brackets/index.html')
 driver.wait(selenium.until.elementLocated(selenium.By.id('entry'))
 ).then(
-finalize(playerNameList, 0,'playerName','saveName')
+setTimeout(function(){finalize(playerNameList, 0,'playerName','saveName')},1200)
 ).then(
-setTimeout(function(){finalize(playerNameList, 1,'playerName','saveName')},5040)
+setTimeout(function(){finalize(playerNameList, 1,'playerName','saveName')},5440)
 ).then(
-setTimeout(function(){finalize(playerNameList, 2,'playerName','saveName')},6500)
+setTimeout(function(){finalize(playerNameList, 2,'playerName','saveName')},7500)
 ).then(
-setTimeout(function(){finalize(playerNameList, 3,'playerName','saveName')},7500)
+setTimeout(function(){finalize(playerNameList, 3,'playerName','saveName')},8500)
 ).then(
-setTimeout(function(){finalize(playerNameList, 4,'playerName','saveName')},8500)
+setTimeout(function(){finalize(playerNameList, 4,'playerName','saveName')},9500)
 ).then(
-setTimeout(function(){finalize(playerNameList, 5,'playerName','saveName')},9650)
+setTimeout(function(){finalize(playerNameList, 5,'playerName','saveName')},10650)
 ).then(
-setTimeout(function(){finalize(playerNameList, 6,'playerName','saveName')},10700)
+setTimeout(function(){finalize(playerNameList, 6,'playerName','saveName')},11700)
 ).then(
-setTimeout(function(){step()}, 12000)
+setTimeout(function(){step()}, 13000)
 ).then(
 setTimeout(function(){bar(playerNameList)}, 14000)
 ).then(
 setTimeout(function(){press(playerNameList)}, 16000)
 )
 driver.wait(selenium.until.elementLocated(selenium.By.id('Round2'))).then(
-setTimeout(function(){bar(playerNameList,round='Round2')}, 18000),
-setTimeout(function(){press(playerNameList)}, 20000)
+setTimeout(function(){bar(playerNameList,round='Round2')}, 20000),
+setTimeout(function(){press(playerNameList)}, 22000)
 )
 
 
