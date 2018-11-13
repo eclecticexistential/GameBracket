@@ -1,7 +1,6 @@
 require('chromedriver');
 const selenium = require('selenium-webdriver');
 const driver = new selenium.Builder().forBrowser('chrome').build();
-
 const playerNameList = ['Chris', 'Abbie', 'Charles', 'Justin', 'Jessica', 'Able', 'James']
 const scores = [0,1,2,3,4,5,6]
 
@@ -10,11 +9,12 @@ function foo(url){
 }
 
 function finalize(ListOfPlayers, pos, areaId, btnId){
-	const player = ListOfPlayers[pos]
-	const area = driver.findElement(selenium.By.id(areaId))
-	const saveBtn = driver.findElement(selenium.By.id(btnId))
-	area.sendKeys(player)
-	saveBtn.click()
+	setTimeout(function(){
+		const player = ListOfPlayers[pos]
+		const area = driver.findElement(selenium.By.id(areaId))
+		const saveBtn = driver.findElement(selenium.By.id(btnId))
+		area.sendKeys(player).then(saveBtn.click())
+	}, 300)
 }
 
 function step(){
@@ -56,31 +56,43 @@ function bar(ListOfPlayers, round=''){
 }
 
 foo('file:///C:/Users/Earthling/Downloads/Coding/Javascript/brackets/index.html')
+let timer = 100
 driver.wait(selenium.until.elementLocated(selenium.By.id('entry'))
 ).then(
-setTimeout(function(){finalize(playerNameList, 0,'playerName','saveName')},1200)
+setTimeout(function(){finalize(playerNameList, 0,'playerName','saveName')},timer)
 ).then(
-setTimeout(function(){finalize(playerNameList, 1,'playerName','saveName')},5440)
+timer += 4000,
+setTimeout(function(){finalize(playerNameList, 1,'playerName','saveName')},timer)
 ).then(
-setTimeout(function(){finalize(playerNameList, 2,'playerName','saveName')},7500)
+timer += 4000,
+setTimeout(function(){finalize(playerNameList, 2,'playerName','saveName')},timer)
 ).then(
-setTimeout(function(){finalize(playerNameList, 3,'playerName','saveName')},8500)
+timer += 3000,
+setTimeout(function(){finalize(playerNameList, 3,'playerName','saveName')}, timer)
 ).then(
-setTimeout(function(){finalize(playerNameList, 4,'playerName','saveName')},9500)
+timer += 3000,
+setTimeout(function(){finalize(playerNameList, 4,'playerName','saveName')},timer)
 ).then(
-setTimeout(function(){finalize(playerNameList, 5,'playerName','saveName')},10650)
+timer += 3000,
+setTimeout(function(){finalize(playerNameList, 5,'playerName','saveName')},timer)
 ).then(
-setTimeout(function(){finalize(playerNameList, 6,'playerName','saveName')},11700)
+timer += 3000,
+setTimeout(function(){finalize(playerNameList, 6,'playerName','saveName')},timer)
 ).then(
-setTimeout(function(){step()}, 13000)
+timer += 3000,
+setTimeout(function(){step()}, timer)
 ).then(
-setTimeout(function(){bar(playerNameList)}, 14000)
+timer += 3000,
+setTimeout(function(){bar(playerNameList)}, timer)
 ).then(
-setTimeout(function(){press(playerNameList)}, 16000)
+timer += 3000,
+setTimeout(function(){press(playerNameList)}, timer)
 )
 driver.wait(selenium.until.elementLocated(selenium.By.id('Round2'))).then(
-setTimeout(function(){bar(playerNameList,round='Round2')}, 20000),
-setTimeout(function(){press(playerNameList)}, 22000)
+timer += 3000,
+setTimeout(function(){bar(playerNameList,round='Round2')}, timer),
+timer += 3000,
+setTimeout(function(){press(playerNameList)}, timer)
 )
 
 
