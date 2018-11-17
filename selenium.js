@@ -56,12 +56,12 @@ function bar(ListOfPlayers, round=''){
 }
 
 foo('file:///C:/Users/Earthling/Downloads/Coding/Javascript/brackets/index.html')
-let timer = 100
+let timer = 1000
 driver.wait(selenium.until.elementLocated(selenium.By.id('entry'))
 ).then(
 setTimeout(function(){finalize(playerNameList, 0,'playerName','saveName')},timer)
 ).then(
-timer += 4000,
+timer += 4200,
 setTimeout(function(){finalize(playerNameList, 1,'playerName','saveName')},timer)
 ).then(
 timer += 4000,
@@ -94,8 +94,19 @@ setTimeout(function(){bar(playerNameList,round='Round2')}, timer),
 timer += 3000,
 setTimeout(function(){press(playerNameList)}, timer)
 )
+driver.wait(selenium.until.elementLocated(selenium.By.id('Round3'))).then(
+timer += 3000,
+setTimeout(function(){bar(playerNameList,round='Round3')}, timer),
+timer += 4000,
+setTimeout(function(){press(playerNameList)}, timer)
+)
 
-
+driver.wait(selenium.until.elementLocated(selenium.By.id('Round4'))).then(
+timer += 3000,
+setTimeout(function(){bar(playerNameList,round='Round4')}, timer),
+timer += 4000,
+setTimeout(function(){press(playerNameList)}, timer)
+)
 
 
 

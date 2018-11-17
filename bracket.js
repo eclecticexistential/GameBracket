@@ -88,6 +88,7 @@ function addRound(numRound){
 function checkWinner(p1, p2, score1, score2){
 	winner = score1 > score2 ? p1 : p2
 	loser = winner == p1 ? p2 : p1
+	console.log(p1,p2,score1,score2)
 	return [loser, winner]
 }
 
@@ -100,23 +101,55 @@ function checkScore(e, round){
 	let nodeList = e.target.offsetParent.offsetParent.childNodes[1].childNodes[1].childNodes[roundNum-1].childNodes
 	for(i=2; i<nodeList.length;i++){
 		let oppPlayer = ''
-		try{
-			nodeList[i].childNodes[roundNum-1].id
-			if (nodeList[i].childNodes[roundNum-1].id == player){
-				try{
-					oppPlayer += nodeList[i-1].childNodes[roundNum-1].id
-				}
-				catch(TypeError){
-					oppPlayer += nodeList[i+1].childNodes[roundNum-1].id
+		if (roundNum < 3){
+			try{
+				nodeList[i].childNodes[roundNum-1].id
+				if (nodeList[i].childNodes[roundNum-1].id == player){
+					try{
+						oppPlayer += nodeList[i-1].childNodes[roundNum-1].id
+					}
+					catch(TypeError){
+						oppPlayer += nodeList[i+1].childNodes[roundNum-1].id
+					}
 				}
 			}
+			catch(TypeError){
+				continue
+			}
 		}
-		catch(TypeError){
-			continue
+		if (roundNum > 2){
+			try{
+				nodeList[i].childNodes[roundNum-1].id
+				if (nodeList[i].childNodes[roundNum-1].id == playerId){
+					try{
+						oppPlayer += nodeList[i-1].childNodes[roundNum-1].id
+					}
+					catch(TypeError){
+						oppPlayer += nodeList[i+1].childNodes[roundNum-1].id
+					}
+				}
+			}
+			catch(TypeError){
+				continue
+			}
 		}
-		if(oppPlayer != ''){
+		if(oppPlayer != '' && roundNum < 3){
 			let oppPlayerName = oppPlayer.slice(7,oppPlayer.length)
 			let oppPlayerPos = $('#'+oppPlayer)
+			let oppPlayerScore = oppPlayerPos[0].value
+			if (oppPlayerScore != '' && score != ''){
+				$('#'+(playerName)+round+'td').append(' - ' + score)
+				$('#'+ oppPlayerName+round+'td').append(' - ' + oppPlayerScore)
+				$('#' + player).remove()
+				$('#'+ playerName + 'btn').remove()
+				$(oppPlayerPos).remove()
+				$('#'+oppPlayerName + 'btn').remove()
+				return checkWinner(playerName, oppPlayerName, score, oppPlayerScore)
+			}
+		}
+		if(oppPlayer != '' && roundNum > 2){
+			let oppPlayerName = oppPlayer.slice(0,oppPlayer.length-3)
+			let oppPlayerPos = $('#scoreOf'+oppPlayerName)
 			let oppPlayerScore = oppPlayerPos[0].value
 			if (oppPlayerScore != '' && score != ''){
 				$('#'+(playerName)+round+'td').append(' - ' + score)
@@ -177,8 +210,6 @@ function updateBrackets(byePlayers, winners, losers, byes, numRound){
 				
 				$('#'+pWinBtn).click(function(e){
 							let selected = checkScore(e, tableId)
-							// doesn't work after round 2
-							console.log(selected)
 							let oppName = selected[0]
 							let newWinner = selected[1]
 							if (numRound > 1){
