@@ -140,7 +140,7 @@ function inBetween(byePlayers, nextWinners, nextLosers, byes){
 	return updateBrackets(byePlayers, nextWinners, nextLosers, byes, numRound)
 }
 
-function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
+function updateBrackets(byePlayers, winners, losers, byes, numRound){
 	let tableId = 'Round'+numRound
 	let newWinners = winners.filter(player => player != byePlayers)
 	let newLosers = losers.filter(player => player != byePlayers)
@@ -177,6 +177,8 @@ function updateBrackets(byePlayers, winners, losers, filtered, byes, numRound){
 				
 				$('#'+pWinBtn).click(function(e){
 							let selected = checkScore(e, tableId)
+							// doesn't work after round 2
+							console.log(selected)
 							let oppName = selected[0]
 							let newWinner = selected[1]
 							if (numRound > 1){
@@ -289,7 +291,7 @@ function startGame(byes=0){
 			if(completedGames === roundGames){
 				let numRound = ($('#roundDisplay')[0].childElementCount) + 1
 				addRound(numRound)
-				return updateBrackets(byePlayers, winners, losers, filtered, byes, numRound)
+				return updateBrackets(byePlayers, winners, losers, byes, numRound)
 			}
 		})
 		if(pair < 2){
