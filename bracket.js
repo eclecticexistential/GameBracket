@@ -163,6 +163,15 @@ function checkScore(e, round){
 }
 
 function inBetween(byePlayers, nextWinners, nextLosers, byes, doubleElim){
+	let allPlayers = shuffle(nextWinners.concat(nextLosers))
+	// unsure if this works needs more testing
+	if (allPlayers.length > 3){
+		let randomP = Math.floor(Math.random()*(allPlayers.length-1))
+		let giveBye = allPlayers[randomP]
+		nextWinners = nextWinners.filter(p => p != giveBye)
+		nextLosers = nextLosers.filter(p => p != giveBye)
+		byePlayers.push(giveBye)
+	}
 	if (nextWinners.length != nextLosers.length){
 		if (byePlayers.length > 0){
 			while (nextLosers.length < nextWinners.length){
@@ -176,15 +185,9 @@ function inBetween(byePlayers, nextWinners, nextLosers, byes, doubleElim){
 			}
 		}
 	}
-	if(nextLosers.length == 1 && byePlayers.length == 0){
-			byePlayers = nextLosers
-			nextLosers = []
-		}
 	let numRound = ($('#roundDisplay')[0].childElementCount) + 1
 	addRound(numRound)
-	if(numRound > 3){
 	console.log("from inBetween",byePlayers, nextWinners, nextLosers, byes, numRound, doubleElim)
-	}
 	return updateBrackets(byePlayers, nextWinners, nextLosers, byes, numRound, doubleElim)
 }
 
@@ -192,14 +195,44 @@ function updateBrackets(byePlayers, winners, losers, byes, numRound, doubleElim)
 	let tableId = 'Round'+numRound
 	let newWinners = winners.filter(player => player != byePlayers)
 	let newLosers = losers.filter(player => player != byePlayers)
-	if(newWinners.length > newLosers.length){
-		newLosers = newLosers.concat(byePlayers)
-	}
-	if(newLosers.length == 0){
-		//set things up regardless of byePlayers.length
-		if(byePlayers.length == 0){
-			console.log(newWinners)
+	if(newLosers.length < 2){
+		$('#'+tableId).append($(document.createElement("tr")).attr('id', tableId+'Winners'))
+		$('#'+tableId+'Winners').append($(document.createElement("td")).text('Winners'))
+		newWinners.map(p => {
+			let playId = p+tableId+'td'
+			let pWinId = p + tableId
+			let pWinBtn = p+'btn'
+			$('#'+tableId).append($(document.createElement("tr")).attr('id', pWinId))
+			$('#'+ pWinId).append($(document.createElement("td")).attr('id',playId).text(p))
+			$('#'+ pWinId).append($(document.createElement("input")).attr('type', 'text').attr('placeholder', 'Score:').attr('id', 'scoreOf'+p));
+			$('#'+ pWinId).append($(document.createElement("button")).attr('type', 'submit').attr('id',pWinBtn).text('Won?'));
+			$('#'+pWinBtn).click(function(e){
+							let selected = checkScore(e, tableId)
+							let oppName = selected[0]
+							let newWinner = selected[1]
+							newWinners.push(newWinner)
+								let checkElim = doubleElim.filter(p => p == oppName)
+								if(checkElim != oppName){
+									doubleElim.push(oppName)
+									newLosers.push(oppName)
+								}
+							return inBetween(byePlayers, newWinners, newLosers, byes, doubleElim)
+						})
+			})
+		newLosers.map(p => {
+		$('#'+tableId).append($(document.createElement("tr")).attr('id', tableId+'Losers'))
+		$('#'+tableId+'Losers').append($(document.createElement("td")).text('Losers'))
+			let playId = p+tableId+'td'
+			let pWinId = p + tableId
+			$('#'+tableId).append($(document.createElement("tr")).attr('id', pWinId))
+			$('#'+ pWinId).append($(document.createElement("td")).attr('id',playId).text(p))
+		})
+		if(byePlayers.length == 0 && newLosers.length == 0){
+			console.log("Grand Finals", newWinners)
 		//need logic for grand finals ^_^!
+		}
+		if (byePlayers.length == 0 && newWinners.length == 1 && newLosers.length == 1){
+			console.log("Grand Finals", newWinners, newLosers)
 		}
 	}
 	if(newWinners.length == newLosers.length){

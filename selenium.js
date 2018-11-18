@@ -9,15 +9,21 @@ function foo(url){
 }
 
 function finalize(ListOfPlayers, pos, areaId, btnId){
-	const saveBtn = driver.findElement(selenium.By.id(btnId))
-	saveBtn.click()
-	const test = 'i'+pos
-	setTimeout(function(){
-		const player = ListOfPlayers[pos]
-		const area = driver.findElement(selenium.By.id(areaId))
-		area.sendKeys(player)
-		const waitForIt = driver.wait(selenium.until.elementLocated(selenium.By.id(test)))
-	}, 300)
+	if (pos != 'a'){
+		const saveBtn = driver.findElement(selenium.By.id(btnId))
+		saveBtn.click()
+		const test = 'i'+pos
+		setTimeout(function(){
+			const player = ListOfPlayers[pos]
+			const area = driver.findElement(selenium.By.id(areaId))
+			area.sendKeys(player)
+			const waitForIt = driver.wait(selenium.until.elementLocated(selenium.By.id(test)))
+		}, 300)
+	}
+	if (pos == 'a'){
+		const saveBtn = driver.findElement(selenium.By.id(btnId))
+		saveBtn.click()
+	}
 }
 
 function step(){
@@ -83,6 +89,9 @@ setTimeout(function(){finalize(playerNameList, 5,'playerName','saveName')},timer
 ).then(
 timer += 2000,
 setTimeout(function(){finalize(playerNameList, 6,'playerName','saveName')},timer)
+).then(
+timer += 2000,
+setTimeout(function(){finalize(playerNameList, 'a','playerName','saveName')},timer)
 ).then(
 timer += 2000,
 setTimeout(function(){step()}, timer)
