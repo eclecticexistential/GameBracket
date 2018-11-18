@@ -163,24 +163,27 @@ function checkScore(e, round){
 }
 
 function inBetween(byePlayers, nextWinners, nextLosers, byes, doubleElim){
-	let rando = Math.floor(Math.random()*(byePlayers.length-1))
-	let chosen = byePlayers[rando]
 	if (nextWinners.length != nextLosers.length){
-		if (nextLosers.length != 0){
-		nextLosers.push(chosen)
-		byePlayers = byePlayers.filter(p => p != chosen)
-		}
-		if(nextLosers.length == 0){
-			for(i=0;i<byePlayers.length;i++){
-				nextLosers.append(byePlayers[i])
+		if (byePlayers.length > 0){
+			while (nextLosers.length < nextWinners.length){
+			let rando = Math.floor(Math.random()*(byePlayers.length-1))
+			let chosen = byePlayers[rando]
+			nextLosers.push(chosen)
+			byePlayers = byePlayers.filter(p => p != chosen)
+			if (byePlayers.length == 0){
+				break
+				}
 			}
-			byePlayers = []
 		}
 	}
+	if(nextLosers.length == 1 && byePlayers.length == 0){
+			byePlayers = nextLosers
+			nextLosers = []
+		}
 	let numRound = ($('#roundDisplay')[0].childElementCount) + 1
 	addRound(numRound)
-	if(numRound > 2){
-	console.log("from inBetween",byePlayers, nextWinners, nextLosers, byes, numRound)
+	if(numRound > 3){
+	console.log("from inBetween",byePlayers, nextWinners, nextLosers, byes, numRound, doubleElim)
 	}
 	return updateBrackets(byePlayers, nextWinners, nextLosers, byes, numRound, doubleElim)
 }
@@ -192,8 +195,12 @@ function updateBrackets(byePlayers, winners, losers, byes, numRound, doubleElim)
 	if(newWinners.length > newLosers.length){
 		newLosers = newLosers.concat(byePlayers)
 	}
-	if(newWinners.length < newLosers.length){
-		newWinners = newWinners.concat(byePlayers)
+	if(newLosers.length == 0){
+		//set things up regardless of byePlayers.length
+		if(byePlayers.length == 0){
+			console.log(newWinners)
+		//need logic for grand finals ^_^!
+		}
 	}
 	if(newWinners.length == newLosers.length){
 		let totalArrayLength = newWinners.length + newLosers.length + 2

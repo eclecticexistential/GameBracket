@@ -9,11 +9,14 @@ function foo(url){
 }
 
 function finalize(ListOfPlayers, pos, areaId, btnId){
+	const saveBtn = driver.findElement(selenium.By.id(btnId))
+	saveBtn.click()
+	const test = 'i'+pos
 	setTimeout(function(){
 		const player = ListOfPlayers[pos]
 		const area = driver.findElement(selenium.By.id(areaId))
-		const saveBtn = driver.findElement(selenium.By.id(btnId))
-		area.sendKeys(player).then(saveBtn.click())
+		area.sendKeys(player)
+		const waitForIt = driver.wait(selenium.until.elementLocated(selenium.By.id(test)))
 	}, 300)
 }
 
@@ -55,56 +58,58 @@ function bar(ListOfPlayers, round=''){
 	}
 }
 
+
 foo('file:///C:/Users/Earthling/Downloads/Coding/Javascript/brackets/index.html')
+driver.wait(selenium.until.elementLocated(selenium.By.id('playerDisplay')))
 let timer = 1000
 driver.wait(selenium.until.elementLocated(selenium.By.id('entry'))
 ).then(
 setTimeout(function(){finalize(playerNameList, 0,'playerName','saveName')},timer)
 ).then(
-timer += 4200,
+timer += 3200,
 setTimeout(function(){finalize(playerNameList, 1,'playerName','saveName')},timer)
 ).then(
-timer += 4000,
+timer += 3100,
 setTimeout(function(){finalize(playerNameList, 2,'playerName','saveName')},timer)
 ).then(
 timer += 3000,
 setTimeout(function(){finalize(playerNameList, 3,'playerName','saveName')}, timer)
 ).then(
-timer += 3000,
+timer += 2900,
 setTimeout(function(){finalize(playerNameList, 4,'playerName','saveName')},timer)
 ).then(
-timer += 3000,
+timer += 2000,
 setTimeout(function(){finalize(playerNameList, 5,'playerName','saveName')},timer)
 ).then(
-timer += 3000,
+timer += 2000,
 setTimeout(function(){finalize(playerNameList, 6,'playerName','saveName')},timer)
 ).then(
-timer += 3000,
+timer += 2000,
 setTimeout(function(){step()}, timer)
 ).then(
-timer += 3000,
+timer += 2000,
 setTimeout(function(){bar(playerNameList)}, timer)
 ).then(
-timer += 3000,
+timer += 2000,
 setTimeout(function(){press(playerNameList)}, timer)
 )
 driver.wait(selenium.until.elementLocated(selenium.By.id('Round2'))).then(
-timer += 3000,
+timer += 2000,
 setTimeout(function(){bar(playerNameList,round='Round2')}, timer),
-timer += 3000,
+timer += 2000,
 setTimeout(function(){press(playerNameList)}, timer)
 )
 driver.wait(selenium.until.elementLocated(selenium.By.id('Round3'))).then(
-timer += 3000,
+timer += 2000,
 setTimeout(function(){bar(playerNameList,round='Round3')}, timer),
-timer += 4000,
+timer += 2000,
 setTimeout(function(){press(playerNameList)}, timer)
 )
 
 driver.wait(selenium.until.elementLocated(selenium.By.id('Round4'))).then(
-timer += 3000,
+timer += 2000,
 setTimeout(function(){bar(playerNameList,round='Round4')}, timer),
-timer += 4000,
+timer += 2000,
 setTimeout(function(){press(playerNameList)}, timer)
 )
 
