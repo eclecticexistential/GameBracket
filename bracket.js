@@ -88,7 +88,6 @@ function addRound(numRound){
 function checkWinner(p1, p2, score1, score2){
 	winner = score1 > score2 ? p1 : p2
 	loser = winner == p1 ? p2 : p1
-	console.log(p1,p2,score1,score2)
 	return [loser, winner]
 }
 
@@ -119,13 +118,12 @@ function checkScore(e, round){
 		}
 		if (roundNum > 2){
 			try{
-				nodeList[i].childNodes[roundNum-1].id
-				if (nodeList[i].childNodes[roundNum-1].id == playerId){
+				if (nodeList[i].childNodes[2].id == playerId){
 					try{
-						oppPlayer += nodeList[i-1].childNodes[roundNum-1].id
+						oppPlayer += nodeList[i-1].childNodes[2].id
 					}
 					catch(TypeError){
-						oppPlayer += nodeList[i+1].childNodes[roundNum-1].id
+						oppPlayer += nodeList[i+1].childNodes[2].id
 					}
 				}
 			}
@@ -164,16 +162,30 @@ function checkScore(e, round){
 	}
 }
 
-function inBetween(byePlayers, nextWinners, nextLosers, byes){
+function inBetween(byePlayers, nextWinners, nextLosers, byes, doubleElim){
 	let rando = Math.floor(Math.random()*(byePlayers.length-1))
 	let chosen = byePlayers[rando]
-	nextLosers.push(chosen)
+	if (nextWinners.length != nextLosers.length){
+		if (nextLosers.length != 0){
+		nextLosers.push(chosen)
+		byePlayers = byePlayers.filter(p => p != chosen)
+		}
+		if(nextLosers.length == 0){
+			for(i=0;i<byePlayers.length;i++){
+				nextLosers.append(byePlayers[i])
+			}
+			byePlayers = []
+		}
+	}
 	let numRound = ($('#roundDisplay')[0].childElementCount) + 1
 	addRound(numRound)
-	return updateBrackets(byePlayers, nextWinners, nextLosers, byes, numRound)
+	if(numRound > 2){
+	console.log("from inBetween",byePlayers, nextWinners, nextLosers, byes, numRound)
+	}
+	return updateBrackets(byePlayers, nextWinners, nextLosers, byes, numRound, doubleElim)
 }
 
-function updateBrackets(byePlayers, winners, losers, byes, numRound){
+function updateBrackets(byePlayers, winners, losers, byes, numRound, doubleElim){
 	let tableId = 'Round'+numRound
 	let newWinners = winners.filter(player => player != byePlayers)
 	let newLosers = losers.filter(player => player != byePlayers)
@@ -209,20 +221,27 @@ function updateBrackets(byePlayers, winners, losers, byes, numRound){
 				winCount++
 				
 				$('#'+pWinBtn).click(function(e){
+						try{
 							let selected = checkScore(e, tableId)
 							let oppName = selected[0]
 							let newWinner = selected[1]
 							if (numRound > 1){
 								nextWinners.push(newWinner)
-								let hasBye = byePlayers.filter(currPlayer => currPlayer == oppName)
-								nextLosers.push(oppName)
-								if(hasBye.length != 0){
-									byePlayers = byePlayers.filter(currPlayer => currPlayer != oppName)
+								let checkElim = doubleElim.filter(p => p == oppName)
+								if(checkElim != oppName){
+									doubleElim.push(oppName)
+									nextLosers.push(oppName)
 								}
 								if(nextWinners.length === newWinners.length){
-										return inBetween(byePlayers, nextWinners, nextLosers, byes)
+										return inBetween(byePlayers, nextWinners, nextLosers, byes, doubleElim)
 									}
 								}
+						}
+						catch (TypeError){
+							if(numRound > 4){
+							console.log(tableId, playerWinner, e.target.id)
+							}
+						}
 						})
 			}
 			if(i > baseLine/2){
@@ -238,20 +257,26 @@ function updateBrackets(byePlayers, winners, losers, byes, numRound){
 					loseCount++
 					
 					$('#'+pLosBtn).click(function(e){
+						try{
 						let selected = checkScore(e, tableId)
 						let oppName = selected[0]
 						let newWinner = selected[1]
 						if (numRound > 1){
 								nextWinners.push(newWinner)
-								let hasBye = byePlayers.filter(currPlayer => currPlayer == oppName)
-								console.log(hasBye)
-								if(hasBye.length != 0){
+								let checkElim = doubleElim.filter(p => p == oppName)
+								if(checkElim != oppName){
+									doubleElim.push(oppName)
 									nextLosers.push(oppName)
-									byePlayers = byePlayers.filter(currPlayer => currPlayer != oppName)
 								}
-								if(nextWinners.length == newWinners.length){
-										return inBetween(byePlayers, nextWinners, nextLosers, byes)
-									}
+						}
+						if(nextWinners.length == newWinners.length){
+								return inBetween(byePlayers, nextWinners, nextLosers, byes, doubleElim)
+							}
+						}
+						catch (TypeError){
+							if (numRound > 4){
+							console.log(tableId, playerLoser, e.target.id)
+							}
 						}
 					})
 				}
@@ -268,6 +293,7 @@ function startGame(byes=0){
 	let filtered = players.filter(player => !byePlayers.includes(player))
 	let roundGames = (filtered.length)/2
 	let completedGames = 0
+	let doubleElim = []
 	let winners = []
 	let losers = []
 	let midPoint = filtered.length/2
@@ -313,16 +339,18 @@ function startGame(byes=0){
 				completedGames++
 				winners.push(player)
 				losers.push(oppPlayerName)
+				doubleElim.push(oppPlayerName)
 			}
 			if(parseInt(currPlayerWins) < parseInt(oppPlayerWins)){
 				completedGames++
 				winners.push(oppPlayerName)
 				losers.push(player)
+				doubleElim.push(player)
 			}
 			if(completedGames === roundGames){
 				let numRound = ($('#roundDisplay')[0].childElementCount) + 1
 				addRound(numRound)
-				return updateBrackets(byePlayers, winners, losers, byes, numRound)
+				return updateBrackets(byePlayers, winners, losers, byes, numRound, doubleElim)
 			}
 		})
 		if(pair < 2){
